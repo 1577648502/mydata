@@ -1,0 +1,99 @@
+<template>
+      <div>
+    <el-breadcrumb separator-class="el-icon-arrow-right">
+      <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
+      <el-breadcrumb-item>功能区域</el-breadcrumb-item>
+      <el-breadcrumb-item>考勤记录</el-breadcrumb-item>
+    </el-breadcrumb>
+    <el-card>
+         <el-table
+        :data="groupingData"
+        style="width: 100%; margin-bottom: 20px"
+        row-key=""
+        border
+      >
+        <el-table-column prop="g_id" label="id" sortable> </el-table-column>
+        <el-table-column prop="admin_name" label="名称"> </el-table-column>
+        <el-table-column prop="g_name" label="组名称"> </el-table-column>
+        <el-table-column label="操作" width="180px">
+          <template slot-scope="scope" width="170px">
+            <el-button
+              type="primary"
+              icon="el-icon-edit"
+              size="mini"
+              
+            ></el-button>
+            <el-button
+              type="danger"
+              icon="el-icon-delete"
+              size="mini"
+         
+            ></el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-card>
+  </div>
+</template>
+<script>
+export default {
+     data() {
+    return {
+      groupingData: [],
+      groupingRules: {
+        owner: [
+          { required: true, message: "请输入所有者名称", trigger: "blur" },
+          {
+            min: 3,
+            max: 10,
+            message: "长度在 3 到 10 个字符",
+            trigger: "blur",
+          },
+        ],
+        headquarters: [
+          { required: true, message: "请输入管理者", trigger: "blur" },
+          {
+            min: 2,
+            max: 10,
+            message: "长度在 2 到 10 个字符",
+            trigger: "blur",
+          },
+        ],
+        // waterproject: [
+        //   {
+        //     required: true,
+        //     message: "请输入镇名称",
+        //     trigger: "blur",
+        //   },
+        // ],
+        // worksection: [
+        //   {
+        //     required: true,
+        //     message: "请输入出水口名称",
+        //     trigger: "blur",
+        //   },
+        // ],
+      },
+    };
+  },
+  created() {
+    this.getGrouping();
+  },
+  methods: {
+    getGrouping() {
+      this.$http
+        .post("/apiindex.php?ctl=group&act=get_group_list", {
+          admin_id: window.sessionStorage.admin_id,
+        })
+        .then((res) => {
+          console.log(res);
+          this.groupingData = res.data.data;
+        });
+    },
+  },
+}
+</script>
+<style lang="less" scoped>
+
+</style>
+index.php?ctl=task&act=get_sos_list

@@ -1,0 +1,688 @@
+<!--
+ * @Author: your name
+ * @Date: 2021-07-29 16:20:27
+ * @LastEditTime: 2021-08-09 11:14:22
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: \科净源\baidu.html
+-->
+<style>
+  .map {
+    width: 100%;
+    height: 100%;
+    border: rgb(240, 240, 240) solid 1px;
+    font-size: 12px
+  }
+
+  .map_span {
+    height: 5%;
+    width: 100%;
+    background-color: rgb(240, 240, 240);
+  }
+
+  .map_span span {
+    font-size: 20px;
+    margin-top: 50px;
+    margin: 0 auto;
+    margin-top: 10px;
+    display: inline-block;
+    width: 278.25px;
+  }
+
+  #map {
+    width: 100%;
+    height: 95%;
+    border: rgb(240, 240, 240) solid 1px;
+    font-size: 12px
+  }
+
+  /* 点击样式 */
+  .area {
+    width: 750px;
+
+  }
+
+  .area li {
+    list-style: none;
+    font-size: 20px;
+    font-weight: 900;
+    margin-left: 10px;
+  }
+
+  .area table {
+    border-style: groove;
+    border: 1px solid rgb(81 151 202)
+  }
+
+  .area_class {
+    background-color: #b9ccef;
+    color: crimson;
+    width: 100px;
+  }
+
+  .area_tr {
+    text-align: center;
+    background-color: #006696d1;
+    font-size: 18px;
+    letter-spacing: 5px;
+    color: rgb(255, 255, 255);
+  }
+
+  #div1 {
+    height: 485px;
+    width: 1500px;
+  }
+
+  #div2 {
+    height: 500px;
+    width: 1500px;
+  }
+
+  #area1 {
+    /* background-color: #B0C4DE; */
+    height: 430px;
+    float: left;
+  }
+
+  #area2 {
+    /* background-color: #90EE90; */
+    height: 430px;
+    float: left;
+  }
+
+  #area3 {
+    /* background-color: #AFEEEE; */
+    height: 500px;
+    float: left;
+  }
+
+  #area4 {
+    /* background-color: #D4F2E7; */
+    height: 500px;
+    float: left;
+  }
+
+  /* table {
+    float: left;
+    margin-left: 10px;
+    margin-top: 10px;
+  } */
+  .item_title {
+    width: 80px;
+    text-align: center;
+  }
+
+  .unit {
+    width: 100px;
+  }
+</style>
+<script type="text/javascript"
+  src="https://api.map.baidu.com/getscript?v=2.0&ak=lpvgkZac25du6YsnbGoczMbicZosh85Z&services=&t=20210521120631"></script>
+<div class="map">
+
+  <div id="map"></div>
+
+
+</div>
+
+<script type="text/javascript">
+
+  //Subscribe project={1,2,3,4,5,8}
+  var wss = new WebSocket("wss://kjy.gywulian.cn:8383/AllInOneRTP");
+  var token = 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0MSIsInJvbGUiOiLnrqHnkIblkZgiLCJwaG9uZSI6IjE1Mjc3NDM3NDY2IiwiY3JlYXRlZCI6MTYyODEyNDk4MzQ2MiwiaWQiOjIzLCJ1c2VyLWFnZW50IjoiQlJPV1NFUiJ9.emPJaV4ctROkEBI9fc-zAy2azIUlgqQKbNq1wH-4vx9xhQCInEReUbOI9z16Ut2mLOOK-peWODmEHIqVMEqb9A'
+  wss.onopen = function (r) {
+    // 判断有没有token
+    // let token = localStorage.getItem('token');
+    wss.send(token);
+    console.log(wss.readyState);
+  };
+  //WebSocket连接上接收数据
+  var data_ev = [];
+  var data_realTimeData = [];
+  var data_project = [];      //镇的id
+  var data_Array = [];        //全部镇的数据
+  var s_id = []
+
+
+  //显示首页表格数据和绑定表格id
+  setTimeout(() => {
+    var b = document.querySelectorAll('#tab1')
+    homeTab(b)
+  }, 3030);
+
+
+  wss.onmessage = function (event) {
+    let data_1 = JSON.parse(event.data);
+    data_ev = JSON.parse(event.data);
+    if (data_ev['register'] == '验证注册成功') {
+      wss.send('Subscribe project={1,2,3,4,5,6,7,8}')
+    }
+    if (data_ev['realTimeData'] !== undefined) {
+      data_realTimeData = data_ev['realTimeData']['project'][0]['data'];
+      for (let x = 0; x < data_ev['realTimeData']['project'].length; x++) { // 获取哪个镇ID
+        data_project[x] = data_ev['realTimeData']['project'][x]['projectId'];
+        data_Array[x] = data_ev['realTimeData']['project'][x]['data'];
+
+        for (let i = 0; i < data_ev['realTimeData']['project'][x]['data'].length; i++) { //获取镇的数据
+          // document.getElementById(data_ev['realTimeData']['project'][x]['projectId'] + '_' + data_realTimeData[i]['wsEntityId'] + '_' + data_realTimeData[i]['wgVarId']).innerHTML = data_ev['realTimeData']['project'][x]['data'][i]['value'].toFixed(2);
+
+        }
+      }
+    }
+
+    //渲染页面表格数据
+    setTimeout(() => {
+
+      list.forEach(el => {
+
+        el.SummarySheet.cell.forEach(element => {
+
+          if (element.isRealTimeData == 1) {
+
+            s_id.push(element.wsIndicatorId)
+
+          }
+        });
+
+      });
+      data_Array.forEach(el => {
+        s_id.forEach(s_id_el => {
+          for (let i = 0; i < el.length; i++) {
+            if (el[i].wsIndicatorId == s_id_el) {
+              let test = '#' + "s_wsi_" + s_id_el
+              // console.log(document.querySelector(test));
+
+              if (document.querySelector(test)) {
+                document.querySelector(test).innerHTML = (el[i].value).toFixed(2)
+              }
+
+            }
+          }
+        });
+
+
+      })
+
+    }, 3100);
+
+    console.log(data_Array);
+  };
+
+
+  //请求各水厂项目数据 
+  let xhr = new XMLHttpRequest();
+  url = "https://kjy.gywulian.cn:8383/propSheet/GetProjectPropSheet?ownerId=1"
+  var token = "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJibHhtIiwicm9sZSI6IueuoeeQhuWRmCIsInBob25lIjoiIiwiY3JlYXRlZCI6MTYyODcyOTI4ODcxOSwiaWQiOjI1LCJ1c2VyLWFnZW50IjoiQlJPV1NFUiJ9.RlMP2DeQONKY1t6IITnADVG9iy_4JUpEMBFRwOe5OOKWxqgeZ23mb4DsP7eRw_7TDgIlbQUslGRGEJwiNFWJiA"
+  xhr.open('GET', url, true);
+  xhr.setRequestHeader("Authorization", token)
+  xhr.send();
+  // 请求成功回调函数
+  xhr.onload = function (e) {
+    if (this.status == 200) {
+      console.log('成功');
+      list = JSON.parse(xhr.response).PropSheet.project
+      console.log(list);
+    }
+    else {
+      message.error("接口请求失败！")
+    }
+  };
+  // 请求结束
+  xhr.onloadend = e => {
+    console.log('request loadend');
+  };
+  // 请求出错
+  xhr.onerror = e => {
+    console.log('request error');
+  };
+  // 请求超时
+  xhr.ontimeout = e => {
+    console.log('request timeout');
+  };
+
+
+  function butt_0() {
+    wss.send('Subscribe project={1,2,3,4,5,6,7,8}');
+  }
+  //白马
+  //创建和初始化地图函数：
+  function initMap() {
+    createMap();//创建地图
+    setMapEvent();//设置地图事件
+    addMapControl();//向地图添加控件
+    addMapOverlay();//向地图添加覆盖物
+  }
+  function createMap() {
+    map = new BMap.Map("map");
+    map.centerAndZoom(new BMap.Point(110.599491, 22.320958), 13);
+  }
+  function setMapEvent() {
+    map.enableScrollWheelZoom();
+    map.enableKeyboard();
+    map.enableDragging();
+    map.enableDoubleClickZoom()
+  }
+  function addClickHandler(target, window) {
+    target.addEventListener("click", function (e) {
+      target.openInfoWindow(window);
+    });
+  }
+
+  var data_5 = [];
+
+  function addMapOverlay() {
+    var infoWindow;
+    var marker;
+    var label = [];
+    //定时器 3s渲染自定义插件到地图
+
+    setTimeout(function () {
+
+      for (var index = 0; index < list.length; index++) {
+        let point = new BMap.Point(list[index].longitude, list[index].latitude);//指定了文本标注所在的地理位置
+        marker = new BMap.Marker(point, {
+          icon: new BMap.Icon("http://api.map.baidu.com/lbsapi/createmap/images/icon.png", new BMap.Size(20, 25), {
+            imageOffset: new BMap.Size(-46, -21),
+            setTop: true
+          })
+        });
+
+        label[index] = new BMap.Label(list[index].name, { offset: new BMap.Size(25, 5) });
+        let opts = {
+          width: 200,
+          backgroundColor: '#000',
+          title: list[index].name,
+          enableMessage: false
+        };
+
+        var sContent = `<h2 align="center" style='margin:0 0 5px 0;'></h2>
+        <table id="tab"  border="2" bordercolor="black" width="300" cellspacing="0" cellpadding="5">
+        
+        </table></div>`
+        infoWindow = new BMap.InfoWindow(sContent);
+        let html_2 = `
+            <div id="table_${index.toString()}" class="table_0"><table id='tab1' projectid="${list[index].SummarySheet.idPrefix + list[index].projectId}" border="1" bordercolor="#84C1FF" width="180" cellspacing="0" cellpadding="5" style="text-align:center;font-size:14px;">
+              <tr bgcolor="#5197ca">
+                              <td colspan="4" > ${list[index].name}  </td>
+                          </tr>
+                          
+                        </table>
+                        </div>`
+        label[index].setContent(html_2);
+        marker.setLabel(label[index]);
+        map.addOverlay(marker);
+        addClick_zdy(marker, infoWindow);
+      };
+    }, 3000);
+  }
+  //向地图添加控件
+  function addMapControl() {
+    var scaleControl = new BMap.ScaleControl({ anchor: BMAP_ANCHOR_BOTTOM_LEFT });
+    scaleControl.setUnit(BMAP_UNIT_IMPERIAL);
+    map.addControl(scaleControl);
+    var navControl = new BMap.NavigationControl({ anchor: BMAP_ANCHOR_TOP_LEFT, type: BMAP_NAVIGATION_CONTROL_LARGE });
+    map.addControl(navControl);
+    var overviewControl = new BMap.OverviewMapControl({ anchor: BMAP_ANCHOR_BOTTOM_RIGHT, isOpen: true });
+    map.addControl(overviewControl);
+  }
+  var map;
+  initMap();
+
+  gongju();
+  function gongju() {
+    // 自定义控件
+    function ZoomControl() {
+      this.defaultAnchor = BMAP_ANCHOR_TOP_RIGHT;
+      this.defaultOffset = new BMap.Size(15, 1);
+    }
+    var size = new BMap.Size(350, 1);
+    map.addControl(new BMap.CityListControl({
+      anchor: BMAP_ANCHOR_TOP_RIGHT,
+      offset: size,
+    }));
+    // 继承BMap.Control
+    ZoomControl.prototype = new BMap.Control;
+    // 控件初始化
+    ZoomControl.prototype.initialize = function (map) {
+      var div = document.createElement('div');
+      var big = document.createElement('div');
+      var small = document.createElement('div');
+      var celiang = document.createElement('div');
+      var lk = document.createElement('div');
+      var bz = document.createElement('div');
+
+
+      div.appendChild(big);
+      div.appendChild(small);
+      div.appendChild(celiang);
+      div.appendChild(lk);
+      div.appendChild(bz);
+
+      big.appendChild(document.createTextNode('放大'));
+      small.appendChild(document.createTextNode('缩小'));
+      celiang.appendChild(document.createTextNode('水表检测'));
+      lk.appendChild(document.createTextNode('澄江北区'));
+
+
+      bz.appendChild(document.createTextNode('澄江南区'));
+      // lk.appendChild();
+
+
+
+      div.style.borderRight = 'solid 1px #c4c7cc';
+      div.style.borderTop = 'solid 1px #c4c7cc';
+      div.style.borderBottom = 'solid 1px #c4c7cc';
+      div.style.height = '24px';
+      div.style.background = '#fff';
+      div.style.fontSize = '13px';
+      div.style.color = '#000';
+      div.style.textAlign = 'center';
+      div.style.lineHeight = '24px';
+
+      // big.style.borderRight = 'dashed 1px #c4c7cc';
+      big.style.display = 'inline-block';
+      big.style.cursor = "pointer";
+      big.style.width = '60px';
+      big.style.height = '24px';
+      // big.src = 'images/map/放大.png';
+      // big.src = ''
+      big.style.borderRight = '1px solid #c4c7cc';
+      big.style.marginRight = '9px';
+      // big.innerHTML = `<img src="./img/放大.jpg" >`;
+
+
+      small.style.cursor = "pointer";
+      small.style.borderRight = '1px solid #c4c7cc';
+      small.style.display = 'inline-block';
+      small.style.width = '60px';
+      small.style.height = '24px';
+      // small.src = './img/缩小.jpg';
+      small.style.marginRight = '5px';
+
+      celiang.style.cursor = "pointer";
+      celiang.style.display = 'inline-block';
+      celiang.style.borderRight = '1px solid #c4c7cc';
+      celiang.style.width = '60px';
+      celiang.style.height = '24px';
+
+      // celiang.src = 'images/map/测量.png';
+      celiang.style.marginRight = '5px';
+
+      lk.style.cursor = "pointer";
+      lk.style.display = 'inline-block';
+      lk.style.borderRight = 'solid 1px #c4c7cc';
+      lk.style.width = '60px';
+      lk.style.height = '24px';
+      // lk.src = 'images/map/定位.png';
+      lk.style.marginRight = '5px';
+
+
+
+      bz.style.cursor == 'pointer';
+      bz.style.display = 'inline-block';
+      bz.style.width = '60px';
+      bz.style.height = '24px';
+      bz.style.marginRight = '5px';
+      // bz.src = 'images/map/标记.png';
+
+      // 注册点击事件
+      big.onclick = function () {
+        map.zoomTo(map.getZoom() + 2);
+      };
+      small.onclick = function () {
+        map.zoomTo(map.getZoom() - 2);
+      }
+
+      var allmap = map.getOverlays();
+      var map_length = allmap.length;
+      function xs() {
+        for (let x = 0; x < markers.length; x++) {
+          // hide() 隐藏
+          // show() 显示
+          if (allmap[x]["point"]['lng'] == markers[6]["position"]["lng"]) {
+            allmap[x].hide()
+          } else {
+            allmap[x].show()
+          }
+        }
+      }
+
+      celiang.onclick = function () {
+        butt_0()
+        console.log(1);
+        // for (let i = 29; i < 36; i++) {
+        //   if ($('#table_' + i).css('visibility') == 'visible') {
+        //     allmap[i].hide()
+        //     $('#table_' + i).css('visibility', 'hidden');
+        //   }
+        //   else {
+        //     allmap[i].show()
+        //     $('#table_' + i).css('visibility', 'visible');
+        //   }
+        // }
+      }
+      lk.onclick = function () {
+        // for (let x = 0; x < 15; x++) {
+        //   if ($('#table_' + x).css('visibility') == 'visible') {
+        //     allmap[x].hide()
+        //     // console.log(x);
+        //     $('#table_' + x).css('visibility', 'hidden');
+        //     console.log(allmap[x].hide());
+        //   } else {
+        //     allmap[x].show()
+        //     $('#table_' + x).css('visibility', 'visible');
+        //   }
+        // }
+      }
+
+      bz.onclick = function () {
+        // for (let x = 15; x < markers.length; x++) {
+        //   if ($('#table_' + x).css('visibility') == 'visible') {
+        //     allmap[x].hide()
+        //     $('#table_' + x).css('visibility', 'hidden')
+        //   } else {
+        //     allmap[x].show()
+        //     $('#table_' + x).css('visibility', 'visible')
+        //   }
+        // }
+      }
+      // 添加控件到地图
+      map.getContainer().appendChild(div);
+      return div;
+    };
+    // 添加自定义控件到地图
+    var myZoomControl = new ZoomControl();
+    map.addControl(myZoomControl);
+  }
+
+  function opTable(num) {
+
+    // 渲染表格并添加id
+    list.forEach(element => {
+
+
+      data_Array.forEach(el => {
+        element.DetailSheet.cell.forEach(delement => {
+          if (delement.isRealTimeData == 1) {
+            el.forEach(sss => {
+              if (sss.wsIndicatorId == delement.wsIndicatorId) {
+                // console.log(el[num]);
+                let test = '#' + delement.idPrefix + delement.wsIndicatorId + delement.cellText
+                // console.log(test);
+                // console.log(document.querySelector(test));
+                if (document.querySelector(test)) {
+                  document.querySelector(test).innerHTML = (sss.value).toFixed(2)
+                }
+                // .innerHTML = (sss.value).toFixed(2)
+              }
+            });
+          }
+        });
+
+      })
+    });
+  }
+
+
+  function addClick_zdy(target, window) {
+
+    //循环表格实时数据
+    function apply() {
+      list.forEach(element => {
+        if (element.latitude == target.point.lat) {
+          // console.log(element.projectId);
+          opTable(element.projectId)
+          // clrcul(element.projectId)
+        }
+
+      });
+    }
+    target.addEventListener("click", function (e) {
+
+      target.openInfoWindow(window);
+      list.forEach(element => {
+        if (element.latitude == target.point.lat) {
+          getTable(element.projectId)
+
+        }
+
+      });
+      //监听window界面被关闭 执行关闭循环
+      var aaa = setInterval(function () {
+        console.log(window.isOpen());
+        if (!window.isOpen()) {
+          clearInterval(aaa)
+        }
+        apply()
+      }, 3000)
+      apply()
+
+
+    })
+  }
+  //获取表格数据
+  function getTable(index) {
+    var rowCount = 0;
+    var colCount = 0;
+    var trs = [];
+    var tds = [];
+    var test = []
+
+    list[index - 1].DetailSheet.cell.forEach(element => {
+      if (element.rowNo > rowCount)
+        rowCount = element.rowNo;
+
+      if (element.colNo > colCount)
+        colCount = element.colNo;
+
+    });
+    var tableDetail = document.getElementById('tab');   // 详细属性
+
+
+
+    // 创建 tr 若干行
+    for (rowinx = 0; rowinx < rowCount; rowinx++) {
+
+      trs[rowinx] = document.createElement('tr');
+      list[index - 1].DetailSheet.cell.forEach(element => {
+        // 创建当前行的若干列
+        if (element.rowNo == rowinx + 1) {
+          let curTd = document.createElement('td');
+          curTd.setAttribute('id', element.idPrefix + element.wsIndicatorId + element.cellText)
+          curTd.innerHTML = element.cellText
+          tds[element.colNo - 1] = curTd;
+        }
+
+      })
+
+      // tds 添加进 tr
+      tds.forEach(curTd => {
+        trs[rowinx].appendChild(curTd);
+
+      })
+
+    }
+
+    // console.log(trs);
+    trs.forEach(row => {
+      //
+
+      tableDetail.appendChild(row);
+
+
+    })
+    list.forEach(element => {
+      if (element.projectId == index) {
+        document.querySelector('h2').innerHTML = element.name
+}
+     
+    });
+
+  }
+  function makeSummaryTab(index) {
+    var rowCount = 0;
+    var colCount = 0;
+    var trs = [];
+    var tds = [];
+    var test = []
+
+    list[index].SummarySheet.cell.forEach(element => {
+      if (element.rowNo > rowCount)
+        rowCount = element.rowNo;
+
+      if (element.colNo > colCount)
+        colCount = element.colNo;
+
+    });
+    // 创建 tr 若干行
+    for (rowinx = 0; rowinx < rowCount; rowinx++) {
+      trs[rowinx] = document.createElement('tr');
+      // bgcolor="#C4E1FF"
+      trs[rowinx].setAttribute('bgcolor', '#C4E1FF')
+      list[index].SummarySheet.cell.forEach(element => {
+        // 创建当前行的若干列
+        if (element.rowNo == rowinx + 1) {
+          let curTd = document.createElement('td');
+          curTd.setAttribute('id', element.idPrefix + element.wsIndicatorId + element.cellText)
+          curTd.innerHTML = element.cellText
+          tds[element.colNo - 1] = curTd;
+        }
+
+      })
+
+      // tds 添加进 tr
+      tds.forEach(curTd => {
+        trs[rowinx].appendChild(curTd);
+
+      })
+
+    }
+
+    var proID = list[index].SummarySheet.idPrefix + list[index].projectId;
+    console.log(proID);
+    var tab = document.querySelectorAll('#tab1');
+    for (let index = 0; index < trs.length; index++) {
+      for (let i = 0; i < tab.length; i++) {
+        // console.log(tab[i]);
+        if (tab[i].getAttribute('projectid') == proID) {
+
+          tab[i].appendChild(trs[index]);
+        };
+      }
+
+    }
+
+
+
+  }
+
+  //绘制首页表格并绑定id
+  function homeTab(b) {
+
+    for (index = 0; index < list.length; index++) {
+      makeSummaryTab(index);
+    }
+
+  }
+
+</script>
